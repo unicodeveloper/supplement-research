@@ -200,7 +200,7 @@ function HomeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] py-16 px-6 sm:px-8 lg:px-12">
+    <div className="min-h-screen bg-[var(--background)] py-8 px-4 sm:py-16 sm:px-8 lg:px-12">
       {/* Sidebar */}
       <Sidebar onSignInClick={() => setShowSignInModal(true)} user={user} />
 
@@ -232,12 +232,12 @@ function HomeContent() {
 
       {/* Discord Banner - Minimal Notion style */}
       {showDiscordBanner && (
-        <div className="fixed top-4 left-6 z-50">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-50">
           <a
             href="https://discord.gg/BhUWrFbHRa"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-1.5 px-2.5 py-1.5 bg-[var(--discord)] hover:bg-[var(--discord-hover)] text-white rounded-md shadow-notion-sm transition-notion text-xs"
+            className="group flex items-center gap-1.5 px-2.5 py-1.5 bg-[var(--discord)] hover:bg-[var(--discord-hover)] text-white rounded-md shadow-notion-sm transition-notion text-xs whitespace-nowrap"
           >
             {/* Discord Icon */}
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -269,13 +269,13 @@ function HomeContent() {
           // Centered layout before analysis starts - Notion style with lots of whitespace
           <>
             {/* Header - Centered with Notion typography */}
-            <div className="text-center mb-16 pt-8">
-              <h1 className="text-4xl sm:text-5xl font-bold text-[var(--foreground)] mb-4 tracking-tight">
+            <div className="text-center mb-8 sm:mb-16 pt-4 sm:pt-8">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--foreground)] mb-3 sm:mb-4 tracking-tight">
                 Competitor Analysis
               </h1>
-              <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto leading-relaxed px-2">
                 Get comprehensive insights about any competitor with AI-powered deep research.
-                Analyzes multiple sources to provide detailed reports on products, market positioning, and strategy.
+                <span className="hidden sm:inline"> Analyzes multiple sources to provide detailed reports on products, market positioning, and strategy.</span>
               </p>
             </div>
 
@@ -295,11 +295,11 @@ function HomeContent() {
           </>
         ) : (
           // Side by Side Layout after analysis starts
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start pt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-start pt-4 sm:pt-8">
             {/* Left Column - Header + Form */}
-            <div className="w-full space-y-8 max-w-md mx-auto lg:mx-0 lg:ml-auto">
+            <div className="w-full space-y-6 sm:space-y-8 max-w-md mx-auto lg:mx-0 lg:ml-auto order-2 lg:order-1">
               {/* Header - Left aligned */}
-              <div>
+              <div className="hidden lg:block">
                 <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] mb-3 tracking-tight">
                   Competitor Analysis
                 </h1>
@@ -321,8 +321,8 @@ function HomeContent() {
               />
             </div>
 
-            {/* Right Column - Results */}
-            <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:mr-auto">
+            {/* Right Column - Results (shows first on mobile) */}
+            <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:mr-auto order-1 lg:order-2">
               <ResearchResults
                 result={analysisResult}
                 isLoading={isAnalyzing && !analysisResult}
@@ -336,7 +336,7 @@ function HomeContent() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 pb-8 flex justify-center">
+      <footer className="mt-8 sm:mt-12 pb-6 sm:pb-8 flex justify-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--background-secondary)] text-[var(--foreground-secondary)] text-xs font-medium">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />

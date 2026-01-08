@@ -107,7 +107,7 @@ export default function CompetitorAnalysisForm({
 
   return (
     <div className="w-full max-w-xl">
-      <form onSubmit={handleSubmit} className="space-y-6 p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] shadow-notion-sm">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] shadow-notion-sm">
         <div className="space-y-2">
           <label htmlFor="websiteUrl" className="block text-sm font-medium text-[var(--foreground)]">
             Competitor Website URL
