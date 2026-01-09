@@ -43,7 +43,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             </h2>
 
             <p className="text-sm text-[var(--foreground-secondary)] mb-5 leading-relaxed">
-              Valyu powers our competitor analysis app with real-time access to comprehensive business intelligence.
+              Valyu powers the competitor analysis app with real-time access to comprehensive business intelligence.
             </p>
 
             {/* Free Credits Banner */}
