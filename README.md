@@ -4,6 +4,15 @@ An AI-powered supplement research tool built with Next.js and [Valyu Deep Resear
 
 Get comprehensive, evidence-based research on any supplement including detailed reports, brand comparisons, and dosage recommendations from trusted sources.
 
+Try it [live now!](https://supplement-research.up.railway.app)
+
+![Supplement Research](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/supplement-research-homepage)
+
+![Supplement research description](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/supplement-research-description)
+
+![Search results progress](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/research-progress-results)
+
+
 ## Features
 
 - **Deep Research**: Leverages Valyu's AI to search multiple sources and analyze scientific studies
