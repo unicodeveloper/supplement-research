@@ -2,11 +2,12 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import CompetitorAnalysisForm from './components/CompetitorAnalysisForm';
+import SupplementResearchForm from './components/SupplementResearchForm';
 import ResearchResults from './components/ResearchResults';
 import Sidebar from './components/Sidebar';
 import SignInModal from './components/SignInModal';
 import { isSelfHostedMode } from '@/lib/mode';
+import { restoreFormValuesAfterOAuth } from '@/lib/oauth';
 
 interface User {
   id: string;
@@ -23,8 +24,8 @@ function HomeContent() {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showAuthSuccess, setShowAuthSuccess] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [websiteUrl, setWebsiteUrl] = useState('https://');
-  const [summaryText, setSummaryText] = useState('');
+  const [supplementName, setSupplementName] = useState('');
+  const [researchFocus, setResearchFocus] = useState('');
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const cancelledRef = useRef(false);
@@ -71,6 +72,16 @@ function HomeContent() {
           console.error('Failed to parse user data:', error);
         }
       }
+      // Restore form values saved before OAuth redirect
+      const savedFormValues = restoreFormValuesAfterOAuth();
+      if (savedFormValues) {
+        if (savedFormValues.supplementName) {
+          setSupplementName(savedFormValues.supplementName);
+        }
+        if (savedFormValues.researchFocus) {
+          setResearchFocus(savedFormValues.researchFocus);
+        }
+      }
       // Hide success message after 5 seconds
       setTimeout(() => setShowAuthSuccess(false), 5000);
       // Clean up URL
@@ -100,14 +111,18 @@ function HomeContent() {
 
     try {
       const headers = getAuthHeaders();
-      const response = await fetch(`/api/competitor-analysis/status?taskId=${taskId}`, {
+      const response = await fetch(`/api/supplement-research/status?taskId=${taskId}`, {
         headers,
       });
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle auth required error
+        // Handle auth required error (token expired/invalid)
         if (data.error === 'AUTH_REQUIRED') {
+          // Clear invalid tokens
+          localStorage.removeItem('valyu_access_token');
+          localStorage.removeItem('valyu_user');
+          setUser(null);
           setShowSignInModal(true);
           if (pollIntervalRef.current) {
             clearInterval(pollIntervalRef.current);
@@ -166,8 +181,8 @@ function HomeContent() {
     setCurrentTaskId(null);
     setIsCancelling(false);
     // Clear form inputs
-    setWebsiteUrl('https://');
-    setSummaryText('');
+    setSupplementName('');
+    setResearchFocus('');
   };
 
   const handleCancel = async () => {
@@ -187,7 +202,7 @@ function HomeContent() {
         ...getAuthHeaders(),
       };
 
-      await fetch('/api/competitor-analysis/cancel', {
+      await fetch('/api/supplement-research/cancel', {
         method: 'POST',
         headers,
         body: JSON.stringify({ taskId: currentTaskId }),
@@ -199,45 +214,52 @@ function HomeContent() {
     handleReset();
   };
 
+  // Determine if we're on homepage (no analysis in progress)
+  const isHomepage = !isAnalyzing && !analysisResult;
+
   return (
-    <div className="min-h-screen bg-[var(--background)] py-8 px-4 sm:py-16 sm:px-8 lg:px-12">
+    <div className={`bg-background px-4 sm:px-8 lg:px-12 ${isHomepage ? 'h-screen overflow-hidden flex flex-col' : 'min-h-screen py-8 sm:py-16'}`}>
       {/* Sidebar */}
       <Sidebar onSignInClick={() => setShowSignInModal(true)} user={user} />
 
       {/* Sign In Modal - only shown in valyu mode */}
       {!isSelfHosted && (
-        <SignInModal isOpen={showSignInModal} onClose={() => setShowSignInModal(false)} />
+        <SignInModal
+          isOpen={showSignInModal}
+          onClose={() => setShowSignInModal(false)}
+          formValues={{ supplementName, researchFocus }}
+        />
       )}
 
       {/* Authentication Success Notification - only in valyu mode */}
       {!isSelfHosted && showAuthSuccess && (
         <div className="fixed top-6 right-6 z-50">
-          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-lg px-5 py-4 shadow-notion flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-[var(--accent-green-bg)] flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-[var(--accent-green)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-card border border-border rounded-lg px-5 py-4 shadow-lg flex items-center gap-3">
+            <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <div className="text-sm font-medium text-[var(--foreground)]">
+              <div className="text-sm font-medium text-foreground">
                 Successfully signed in
               </div>
-              <div className="text-xs text-[var(--foreground-secondary)]">
-                Welcome to Valyu Competitor Analysis
+              <div className="text-xs text-muted-foreground">
+                Welcome to Supplement Research
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Discord Banner - Minimal Notion style */}
+      {/* Discord Banner */}
       {showDiscordBanner && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-50">
           <a
             href="https://discord.gg/BhUWrFbHRa"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-1.5 px-2.5 py-1.5 bg-[var(--discord)] hover:bg-[var(--discord-hover)] text-white rounded-md shadow-notion-sm transition-notion text-xs whitespace-nowrap"
+            className="group flex items-center gap-1.5 px-2.5 py-1.5 bg-[var(--discord)] hover:bg-[var(--discord-hover)] text-white rounded-md shadow-sm transition-all text-xs whitespace-nowrap"
           >
             {/* Discord Icon */}
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -252,7 +274,7 @@ function HomeContent() {
                 e.stopPropagation();
                 setShowDiscordBanner(false);
               }}
-              className="ml-0.5 p-0.5 hover:bg-white/20 rounded transition-notion"
+              className="ml-0.5 p-0.5 hover:bg-white/20 rounded transition-all"
               aria-label="Close"
             >
               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,66 +285,57 @@ function HomeContent() {
         </div>
       )}
 
-      <main className="max-w-6xl mx-auto">
+      <main className={`max-w-6xl mx-auto ${isHomepage ? 'flex-1 flex flex-col justify-center' : ''}`}>
         {/* Main Content */}
-        {!isAnalyzing && !analysisResult ? (
-          // Centered layout before analysis starts - Notion style with lots of whitespace
-          <>
-            {/* Header - Centered with Notion typography */}
-            <div className="text-center mb-8 sm:mb-16 pt-4 sm:pt-8">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--foreground)] mb-3 sm:mb-4 tracking-tight">
-                Competitor Analysis
+        {isHomepage ? (
+          // Centered layout before analysis starts - fits viewport
+          <div className="flex flex-col items-center">
+            {/* Header - Centered */}
+            <div className="text-center mb-6 sm:mb-8">
+              {/* Decorative Icon */}
+              <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-accent/50 mb-4">
+                <svg className="w-7 h-7 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3 tracking-tight">
+                Supplement Research
               </h1>
-              <p className="text-base sm:text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto leading-relaxed px-2">
-                Get comprehensive insights about any competitor with AI-powered deep research.
-                <span className="hidden sm:inline"> Analyzes multiple sources to provide detailed reports on products, market positioning, and strategy.</span>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed px-2">
+                Evidence-based insights for your health journey.
+                <span className="hidden sm:inline"> Get detailed reports with dosage recommendations and brand comparisons.</span>
               </p>
             </div>
 
             {/* Centered form */}
-            <div className="flex justify-center">
-              <CompetitorAnalysisForm
-                onTaskCreated={handleTaskCreated}
-                user={user}
-                onSignInClick={() => setShowSignInModal(true)}
-                websiteUrl={websiteUrl}
-                setWebsiteUrl={setWebsiteUrl}
-                summaryText={summaryText}
-                setSummaryText={setSummaryText}
-                isAnalyzing={isAnalyzing}
-              />
-            </div>
-          </>
+            <SupplementResearchForm
+              onTaskCreated={handleTaskCreated}
+              user={user}
+              onSignInClick={() => setShowSignInModal(true)}
+              supplementName={supplementName}
+              setSupplementName={setSupplementName}
+              researchFocus={researchFocus}
+              setResearchFocus={setResearchFocus}
+              isAnalyzing={isAnalyzing}
+            />
+          </div>
         ) : (
-          // Side by Side Layout after analysis starts
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-start pt-4 sm:pt-8">
-            {/* Left Column - Header + Form */}
-            <div className="w-full space-y-6 sm:space-y-8 max-w-md mx-auto lg:mx-0 lg:ml-auto order-2 lg:order-1">
-              {/* Header - Left aligned */}
-              <div className="hidden lg:block">
-                <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] mb-3 tracking-tight">
-                  Competitor Analysis
+          // Centered Layout for research in progress / results
+          <div className="flex flex-col items-center pt-4 sm:pt-8">
+            {/* Compact Header - only show when still researching */}
+            {analysisResult?.status !== 'completed' && (
+              <div className="text-center mb-6">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 tracking-tight">
+                  Researching...
                 </h1>
-                <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                  Get comprehensive insights about any competitor with AI-powered deep research.
+                <p className="text-sm text-muted-foreground">
+                  {supplementName}{researchFocus ? ` • ${researchFocus}` : ''}
                 </p>
               </div>
+            )}
 
-              {/* Form */}
-              <CompetitorAnalysisForm
-                onTaskCreated={handleTaskCreated}
-                user={user}
-                onSignInClick={() => setShowSignInModal(true)}
-                websiteUrl={websiteUrl}
-                setWebsiteUrl={setWebsiteUrl}
-                summaryText={summaryText}
-                setSummaryText={setSummaryText}
-                isAnalyzing={isAnalyzing}
-              />
-            </div>
-
-            {/* Right Column - Results (shows first on mobile) */}
-            <div className="w-full max-w-2xl mx-auto lg:mx-0 lg:mr-auto order-1 lg:order-2">
+            {/* Centered Results */}
+            <div className="w-full max-w-2xl">
               <ResearchResults
                 result={analysisResult}
                 isLoading={isAnalyzing && !analysisResult}
@@ -335,15 +348,17 @@ function HomeContent() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-8 sm:mt-12 pb-6 sm:pb-8 flex justify-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--background-secondary)] text-[var(--foreground-secondary)] text-xs font-medium">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span>Powered by Valyu Deep Research</span>
-        </div>
-      </footer>
+      {/* Footer - only show on homepage */}
+      {isHomepage && (
+        <footer className="pb-6 flex justify-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted text-muted-foreground text-xs font-medium">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Powered by Valyu Deep Research</span>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
@@ -351,8 +366,8 @@ function HomeContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="flex items-center gap-3 text-[var(--foreground-secondary)]">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center gap-3 text-muted-foreground">
           <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

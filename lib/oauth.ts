@@ -44,13 +44,56 @@ export function isOAuthConfigured(): boolean {
 }
 
 /**
- * Initiates the OAuth flow by redirecting to the authorization endpoint
+ * Form values to preserve through OAuth redirect
  */
-export async function initiateOAuthFlow() {
+export interface OAuthFormValues {
+  supplementName?: string;
+  researchFocus?: string;
+}
+
+/**
+ * localStorage key for storing form values during OAuth
+ */
+const OAUTH_FORM_VALUES_KEY = 'oauth_form_values';
+
+/**
+ * Save form values to localStorage before OAuth redirect
+ */
+export function saveFormValuesBeforeOAuth(values: OAuthFormValues): void {
+  localStorage.setItem(OAUTH_FORM_VALUES_KEY, JSON.stringify(values));
+}
+
+/**
+ * Restore form values from localStorage after OAuth redirect
+ * Clears the stored values after retrieval
+ */
+export function restoreFormValuesAfterOAuth(): OAuthFormValues | null {
+  const storedValues = localStorage.getItem(OAUTH_FORM_VALUES_KEY);
+  if (storedValues) {
+    localStorage.removeItem(OAUTH_FORM_VALUES_KEY);
+    try {
+      return JSON.parse(storedValues);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Initiates the OAuth flow by redirecting to the authorization endpoint
+ * @param formValues - Optional form values to preserve through the OAuth redirect
+ */
+export async function initiateOAuthFlow(formValues?: OAuthFormValues) {
   // Check if OAuth is configured
   if (!isOAuthConfigured()) {
     console.warn('OAuth is not configured. Set NEXT_PUBLIC_VALYU_CLIENT_ID, NEXT_PUBLIC_VALYU_AUTH_URL, and NEXT_PUBLIC_REDIRECT_URI.');
     return;
+  }
+
+  // Save form values to localStorage before redirect
+  if (formValues) {
+    saveFormValuesBeforeOAuth(formValues);
   }
 
   // Generate PKCE parameters

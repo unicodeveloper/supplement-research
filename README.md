@@ -1,29 +1,21 @@
-# Competitor Analysis
+# Supplement Research
 
-A competitor analysis tool built with Next.js and [Valyu Deep Research API](https://docs.valyu.ai/guides/deepresearch).
+An AI-powered supplement research tool built with Next.js and [Valyu Deep Research API](https://docs.valyu.ai/guides/deepresearch).
 
-Get comprehensive insights about any competitor with detailed reports on products, market positioning, and strategy.
-
-Try it [live now!](https://competitor-analysis.up.railway.app)
-
-![Competitor Analysis](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/Screenshot%202026-01-07%20at%2016.14.05.png)
-
-![Processing result](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/Screenshot%202026-01-07%20at%2016.07.42.png)
-
-![Search results](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/Screenshot%202026-01-07%20at%2016.13.41.png)
-
+Get comprehensive, evidence-based research on any supplement including detailed reports, brand comparisons, and dosage recommendations from trusted sources.
 
 ## Features
 
-- **Deep Research**: Leverages Valyu's AI to search multiple sources and analyze content
-- **Comprehensive Reports**: Detailed analysis including company overview, products, market positioning, and recent developments
-- **Beautiful UI**: Modern, responsive side-by-side interface with dark mode support
+- **Deep Research**: Leverages Valyu's AI to search multiple sources and analyze scientific studies
+- **Comprehensive Reports**: Detailed analysis including benefits, dosage, side effects, drug interactions, and more
+- **Brand Comparison CSV**: Downloadable spreadsheet comparing brands, prices, and product details
+- **Summary Document**: One-page Word doc with key facts about the supplement
+- **Beautiful UI**: Modern, responsive interface with sage-garden theme
 - **Real-time Updates**: Live progress tracking with step-by-step status updates (5-10 minutes)
 - **Progress Indicators**: Visual progress bar showing current step and completion percentage
 - **Mobile Friendly**: Fully responsive design that adapts to all screen sizes
 - **PDF Export**: Download research reports as PDF (auto-generated with results)
-- **Source Citations**: All research backed by verifiable sources
-- **Live Results**: Results appear in real-time on the right panel as research progresses
+- **Source Citations**: All research backed by verifiable scientific sources
 
 ## Quick Start (Self-Hosted)
 
@@ -93,47 +85,81 @@ NEXT_PUBLIC_REDIRECT_URI=http://localhost:3000/auth/valyu/callback
 
 ## How to Use
 
-1. **Enter Details** (Left Panel): Add competitor's website URL and initial context
-2. **Start Analysis**: Click "Start Deep Research Analysis"
-3. **Watch Progress** (Right Panel): Real-time progress updates appear immediately
+1. **Enter Supplement Name** (Left Panel): Type the supplement you want to research (e.g., "Collagen", "Vitamin D3", "Magnesium")
+2. **Add Focus Areas** (Optional): Specify any particular aspects you want to focus on
+3. **Start Research**: Click "Research Supplement"
+4. **Watch Progress** (Right Panel): Real-time progress updates appear immediately
    - See current step and percentage complete
    - Visual progress bar shows research status
    - Live status messages keep you informed
-4. **Review Results**: Comprehensive report appears automatically when complete
-   - Beautifully formatted markdown content
-   - Clickable source citations
-   - Download PDF report with one click
+5. **Download Your Files**: When complete, download:
+   - **PDF Report**: Complete research document
+   - **Brand Comparison CSV**: Spreadsheet of brands and prices
+   - **Summary Document**: One-page Word doc with key facts
+
+## Deliverables
+
+The research generates three downloadable files:
+
+1. **Full Report (PDF)**: Comprehensive analysis including:
+   - What the supplement is and how it works
+   - Scientific evidence for benefits
+   - Recommended dosage and timing
+   - Different forms and bioavailability
+   - Side effects and contraindications
+   - Drug interactions
+   - Quality markers to look for
+
+2. **Brand Comparison (CSV)**: Spreadsheet with columns:
+   - Brand name
+   - Product name
+   - Price and price per serving
+   - Dosage
+   - Form (capsule/powder/liquid)
+   - Third-party testing status
+   - Rating
+   - Where to buy
+
+3. **Summary Document (DOCX)**: One-page summary covering:
+   - What it is
+   - Key benefits
+   - Recommended dosage
+   - Best time to take
+   - Potential side effects
+   - Who should avoid it
+   - Drug interactions
 
 ## Project Structure
 
 ```
 app/
 ├── api/
-│   └── competitor-analysis/
+│   └── supplement-research/
 │       ├── route.ts              # API endpoint for creating research tasks
 │       ├── cancel/
 │       │   └── route.ts          # API endpoint for cancelling research tasks
 │       └── status/
 │           └── route.ts          # API endpoint for checking task status and progress
 ├── components/
-│   ├── CompetitorAnalysisForm.tsx    # Input form with polling logic
-│   ├── ResearchResults.tsx           # Results display with loading states
-│   └── Sidebar.tsx                   # Navigation sidebar component
+│   ├── SupplementResearchForm.tsx   # Input form with supplement examples
+│   ├── ResearchResults.tsx          # Results display with deliverables download
+│   └── Sidebar.tsx                  # Navigation sidebar component
 ├── page.tsx                  # Main homepage with side-by-side layout
 ├── layout.tsx                # Root layout
-└── globals.css               # Global styles and animations
+└── globals.css               # Global styles with sage-garden theme
 lib/
 └── mode.ts                   # App mode detection utilities
 ```
 
 ## API Configuration
 
-The deep research API is configured in [route.ts](app/api/competitor-analysis/route.ts):
+The deep research API is configured in [route.ts](app/api/supplement-research/route.ts):
 
 - **Model**: `fast` (~5 min) - Can change to `standard` (10-20 min) or `heavy` (up to 90 min)
 - **Architecture**: Asynchronous with client-side polling (no server timeouts!)
 - **Poll Interval**: Checks status every 10 seconds
-- **Output Formats**: Markdown and PDF
+- **Output Formats**: Markdown, PDF, CSV, and DOCX
+- **Deliverables**: Brand comparison CSV and summary document
 - **Progress Tracking**: Real-time step-by-step progress updates
 - **Max Duration**: No limit - polling continues until completion
 
@@ -159,14 +185,14 @@ The deep research API is configured in [route.ts](app/api/competitor-analysis/ro
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4 with Typography plugin
+- **Styling**: Tailwind CSS 4 with Typography plugin (sage-garden theme)
 - **Markdown Rendering**: react-markdown with GitHub Flavored Markdown
-- **AI Research**: Valyu Deep Research API
+- **AI Research**: Valyu Deep Research API with deliverables
 - **Deployment**: Railway
 
 ## Key Dependencies
 
-- `valyu-js` - Official Valyu SDK for deep research
+- `valyu-js` - Official Valyu SDK for deep research with deliverables
 - `react-markdown` - Beautiful markdown rendering
 - `remark-gfm` - GitHub Flavored Markdown support
 - `@tailwindcss/typography` - Typography styles for prose content

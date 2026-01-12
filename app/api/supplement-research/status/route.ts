@@ -21,7 +21,7 @@ async function getDeepResearchStatus(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        path: `/v1/deepresearch/${taskId}`,
+        path: `/v1/deepresearch/tasks/${taskId}/status`,
         method: 'GET',
         body: {}
       }),
@@ -29,6 +29,15 @@ async function getDeepResearchStatus(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      // Check for auth errors (invalid/expired token)
+      if (response.status === 401 || response.status === 403 ||
+          errorData.error?.includes('invalid_token') ||
+          errorData.error?.includes('expired') ||
+          errorData.error?.includes('unauthorized')) {
+        const authError = new Error('AUTH_REQUIRED');
+        (authError as any).isAuthError = true;
+        throw authError;
+      }
       throw new Error(errorData.error || `Proxy request failed: ${response.status}`);
     }
 
@@ -84,11 +93,21 @@ export async function GET(req: NextRequest) {
       sources: result.sources,
       usage: result.usage,
       pdf_url: result.pdf_url,
+      deliverables: result.deliverables, // Include deliverables (CSV, DOCX)
       progress: result.progress // Include progress information
     });
 
   } catch (error) {
     console.error('Status check error:', error);
+
+    // Check if it's an auth error
+    if ((error as any)?.isAuthError || (error instanceof Error && error.message === 'AUTH_REQUIRED')) {
+      return NextResponse.json({
+        error: "AUTH_REQUIRED",
+        message: "Your session has expired. Please sign in again.",
+      }, { status: 401 });
+    }
+
     return NextResponse.json({
       error: `Failed to check status: ${error instanceof Error ? error.message : String(error)}`
     }, { status: 500 });

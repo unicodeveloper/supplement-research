@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
 import { Analytics } from '@vercel/analytics/next';
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Competitor Analysis | AI-Powered Deep Research",
-  description: "Get comprehensive competitor insights with AI-powered deep research. Analyze products, market positioning, and strategy using Valyu.",
+  title: "Supplement Research | AI-Powered Deep Research",
+  description: "Get comprehensive, evidence-based research on any supplement. Includes detailed reports, brand comparisons, and dosage recommendations from trusted sources.",
 };
 
 export default function RootLayout({
@@ -25,9 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="font-sans antialiased">
         {children}
         <Analytics />
       </body>

@@ -38,7 +38,7 @@ function UserAvatar({ user, size = 'sm' }: { user: User; size?: 'sm' | 'md' }) {
   }
 
   return (
-    <div className={`${sizeClasses} rounded-full bg-[var(--foreground)] flex items-center justify-center text-[var(--background)] font-medium`}>
+    <div className={`${sizeClasses} rounded-full bg-foreground flex items-center justify-center text-background font-medium`}>
       {user.email[0].toUpperCase()}
     </div>
   );
@@ -59,21 +59,21 @@ export default function Sidebar({ onSignInClick, user }: SidebarProps) {
 
   return (
     <div className="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 z-40">
-      <div className="flex flex-col gap-1 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-lg p-2 shadow-notion-sm">
+      <div className="flex flex-col gap-1 bg-card border border-border rounded-lg p-2 shadow-sm">
         {/* User Avatar (if logged in) or Lock Icon (if not logged in) - Only show in valyu mode */}
         {!isSelfHosted && (
           <>
             <div className="relative">
               <button
                 onClick={() => user ? setShowUserMenu(!showUserMenu) : onSignInClick()}
-                className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-[var(--hover-bg)] transition-notion"
+                className="w-10 h-10 flex items-center justify-center rounded-md hover:bg-accent transition-all"
                 aria-label={user ? 'User menu' : 'Sign in with Valyu'}
               >
                 {user ? (
                   <UserAvatar user={user} size="sm" />
                 ) : (
                   <svg
-                    className="w-5 h-5 text-[var(--foreground-secondary)]"
+                    className="w-5 h-5 text-muted-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -98,15 +98,15 @@ export default function Sidebar({ onSignInClick, user }: SidebarProps) {
                   ></div>
 
                   {/* Menu */}
-                  <div className="absolute left-full ml-2 top-0 w-56 bg-[var(--card-bg)] rounded-lg shadow-notion border border-[var(--border-color)] overflow-hidden z-40">
-                    <div className="p-3 border-b border-[var(--border-color)]">
+                  <div className="absolute left-full ml-2 top-0 w-56 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-40">
+                    <div className="p-3 border-b border-border">
                       <div className="flex items-center gap-3">
                         <UserAvatar user={user} size="md" />
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-[var(--foreground)] truncate">
+                          <div className="text-sm font-medium text-foreground truncate">
                             {user.name || user.email.split('@')[0]}
                           </div>
-                          <div className="text-xs text-[var(--foreground-tertiary)] truncate">
+                          <div className="text-xs text-muted-foreground truncate">
                             {user.email}
                           </div>
                         </div>
@@ -115,7 +115,7 @@ export default function Sidebar({ onSignInClick, user }: SidebarProps) {
 
                     <button
                       onClick={handleSignOut}
-                      className="w-full px-3 py-2 text-left text-sm text-[#EB5757] hover:bg-[var(--hover-bg)] transition-notion flex items-center gap-2"
+                      className="w-full px-3 py-2 text-left text-sm text-destructive hover:bg-accent transition-all flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -128,14 +128,14 @@ export default function Sidebar({ onSignInClick, user }: SidebarProps) {
             </div>
 
             {/* Divider */}
-            <div className="w-full h-px bg-[var(--border-color)] my-1"></div>
+            <div className="w-full h-px bg-border my-1"></div>
           </>
         )}
 
         {/* Valyu Logo - Home */}
         <a
           href="/"
-          className="w-10 h-10 flex items-center justify-center rounded-md bg-black hover:bg-black/90 transition-notion"
+          className="w-10 h-10 flex items-center justify-center rounded-md bg-black hover:bg-black/90 transition-all"
           aria-label="Home"
         >
           <Image
