@@ -12,6 +12,8 @@ Try it [live now!](https://supplement-research.up.railway.app)
 
 ![Search results progress](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/research-progress-results)
 
+![Search results final dashboard](https://4ealzrotsszllxtz.public.blob.vercel-storage.com/results-dashboard)
+
 
 ## Features
 
