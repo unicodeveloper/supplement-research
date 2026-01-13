@@ -177,3 +177,8 @@ body {
   line-height: 1.5;
   letter-spacing: var(--tracking-normal);
 }
+
+/* GitHub Ribbon */
+.github-ribbon div {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
